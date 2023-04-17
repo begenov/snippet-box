@@ -2,7 +2,8 @@ package controller
 
 import (
 	"net/http"
-	"snippet/internal/service"
+
+	"github.com/begenov/snippet-box/internal/service"
 )
 
 type AuthHandlers interface {

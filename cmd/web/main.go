@@ -8,7 +8,10 @@ import (
 
 	"github.com/golangcollege/sessions"
 
-	"github.com/begenov/snippet-box/template"
+	"github.com/begenov/snippet-box/internal/controller"
+	"github.com/begenov/snippet-box/internal/repository"
+	"github.com/begenov/snippet-box/internal/service"
+	template "github.com/begenov/snippet-box/template"
 )
 
 var addr, dsn, secret *string

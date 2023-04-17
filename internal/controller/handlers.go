@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"snippet/internal/e"
-	"snippet/internal/service/forms"
-	templates "snippet/template"
 	"strconv"
+
+	"github.com/begenov/snippet-box/internal/e"
+
+	templates "github.com/begenov/snippet-box/template"
+
+	"github.com/begenov/snippet-box/internal/service/forms"
 )
 
 func (h *Handler) home() http.HandlerFunc {
