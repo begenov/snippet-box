@@ -4,29 +4,47 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
+	"time"
+
+	"github.com/golangcollege/sessions"
+
+	"github.com/begenov/snippet-box/template"
 )
 
-type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
+var addr, dsn, secret *string
+
+// var loggers logger.IAuthLoggers
+
+func init() {
+	pkg.Removefile()
+	addr = flag.String("addr", ":4000", "Сетевой адрес веб-сервера")
+	dsn = flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "Название MySQL источника данных")
+	secret = flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 }
 
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
 	flag.Parse()
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+	cache, err := template.NewTemplatesData("./ui/html/")
+	if err != nil {
+		log.Fatal(err)
 	}
+	db, err := repository.Open(*dsn)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+	repo := repository.NewDB(db)
+	services := service.NewApplication(repo, &cache, *session)
+	handler := controller.NewHandler(services)
+
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(), // Call the new app.routes() method
+		Addr:    *addr,
+		Handler: handler.Router(),
 	}
-	infoLog.Printf("Starting server on %s", *addr)
-	err := srv.ListenAndServe()
-	errorLog.Fatal(err)
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatalln(err)
+	}
+
 }
